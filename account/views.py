@@ -1,6 +1,4 @@
-from django.shortcuts import render
 
-from django.shortcuts import render
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -11,14 +9,6 @@ from rest_framework.views import APIView
 from account.serializers import RegisterSerializer, ActivationSerializer, LoginSerializer, ChangePasswordSerializer, \
     ForgotPasswordSerializer, CreateNewPasswordSerializer
 
-'''
-1. Регистрация
-2. Активация
-3. Логин
-4. Восстановление пароля
-5. Смена пароля
-6. Профиль пользователя
-'''
 
 class RegistrationView(APIView):
     def post(self, request):
@@ -39,11 +29,11 @@ class ActivationView(APIView):
                             status=status.HTTP_200_OK)
 
 
-class LoginView(ObtainAuthToken):  # вход
+class LoginView(ObtainAuthToken):
     serializer_class = LoginSerializer
 
 
-class LogoutView(APIView):  # выход
+class LogoutView(APIView):
     permission_classes = [IsAuthenticated()]
 
     def post(self, request):
@@ -68,7 +58,7 @@ class ResetPasswordCompleteView(APIView):
             return Response('Пароль успешно обновлён', status=status.HTTP_200_OK)
 
 
-class ChangePasswordView(APIView):  # смена пароля
+class ChangePasswordView(APIView):
 
     permission_classes = [IsAuthenticated]
 

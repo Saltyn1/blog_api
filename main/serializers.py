@@ -1,15 +1,23 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from main.models import Post, Comment, Category
+from main.models import Post, Comment, Category, Favourite
 
 User = get_user_model()
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
 
 
 class PostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ('id', 'title', 'category', 'text', 'created_at', 'author', 'image')
+
 
 
 class PostDetailsSerializer(serializers.ModelSerializer):
@@ -17,17 +25,20 @@ class PostDetailsSerializer(serializers.ModelSerializer):
         model = Post
         fields = '__all__'
 
+
     def get_rating(self, instance):
-        total_rating = sum(instance.comment.values_list('rating', flat=True))
-        reviews_count = instance.reviews.count()
-        rating = total_rating / reviews_count if reviews_count > 0 else 0
+        total_rating = sum(instance.comments.values_list('rating', flat=True))
+        comments_count = instance.comments.count()
+        rating = total_rating / comments_count if comments_count > 0 else 0
         return round(rating, 1)
 
+
     def to_representation(self, instance):
-        representation = super().to_representation(instance) # чтобы добавить
-        representation['comment'] = CommentSerializer(instance.comment.all(), many=True).data
-        representation['comment'] = self.get_rating(instance)
+        representation = super().to_representation(instance)
+        representation['comments'] = CommentSerializer(instance.comments.all(), many=True).data
+        representation['rating'] = self.get_rating(instance)
         return representation
+
 
 
 class CommentAuthorSerializer(serializers.ModelSerializer):
@@ -40,13 +51,15 @@ class CommentAuthorSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ('text1', 'post', 'rating')
+        exclude = ('id', 'f_name')
 
-    # def validate_product(self, post):
-    #     request = self.context.get('request')
-    #     if post.reviews.filter(author=request.user).exists():
-    #         raise serializers.ValidationError('Вы не можете добавить второй отзыв на этот товар')
-    #     return post
+
+    def validate_product(self, post):
+        request = self.context.get('request')
+        if post.comments.filter(author=request.user).exists():
+            raise serializers.ValidationError('Вы не можете добавить второй отзыв на этот товар')
+        return post
+
 
     def validate_rating(self, rating):
         if not rating in range(1, 6):
@@ -65,6 +78,16 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 
+class FavouriteListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favourite
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['posts'] = PostDetailsSerializer(Post.objects.filter(favourites=instance.id),
+                                                        many=True, context=self.context).data
+        return representation
 
 
 

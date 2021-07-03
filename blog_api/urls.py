@@ -7,11 +7,13 @@ from drf_yasg.views import get_schema_view
 from rest_framework.permissions import AllowAny
 from rest_framework.routers import SimpleRouter
 
+
 from main.views import PostViewSet, CommentViewSet
 
 router = SimpleRouter()
 router.register('posts', PostViewSet)
 router.register('comments', CommentViewSet)
+
 
 
 
