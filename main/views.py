@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from .models import *
 
 from .permissions import IsAuthorOrAdminPermission, DenyAll
-from .serializers import PostListSerializer, PostDetailsSerializer, CommentSerializer, FavouriteListSerializer, \
+from .serializers import PostListSerializer, PostDetailsSerializer, CommentSerializer, \
     CategorySerializer
 
 

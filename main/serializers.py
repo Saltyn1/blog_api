@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from main.models import Post, Comment, Category, Favourite
+from main.models import Post, Comment, Category
 
 User = get_user_model()
 
@@ -78,16 +78,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 
-class FavouriteListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Favourite
-        fields = '__all__'
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['posts'] = PostDetailsSerializer(Post.objects.filter(favourites=instance.id),
-                                                        many=True, context=self.context).data
-        return representation
 
 
 
